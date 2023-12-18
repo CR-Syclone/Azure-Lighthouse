@@ -1,0 +1,103 @@
+{
+ "$schema": "https://schema.management.azure.com/schemas/2019-08-01/subscriptionDeploymentTemplate.json#",
+ "contentVersion": "1.0.0.0",
+ "parameters": {
+  "mspOfferName": {
+   "type": "string",
+   "metadata": {
+    "description": "Specify a unique name for your offer"
+   },
+   "defaultValue": "Syclone ARM Offer"
+  },
+  "mspOfferDescription": {
+   "type": "string",
+   "metadata": {
+    "description": "Name of the Managed Service Provider offering"
+   },
+   "defaultValue": ""
+  }
+ },
+ "variables": {
+  "mspRegistrationName": "[guid(parameters('mspOfferName'))]",
+  "mspAssignmentName": "[guid(parameters('mspOfferName'))]",
+  "managedByTenantId": "572665df-7bc8-4ade-a66e-15e92fad6ba8",
+  "authorizations": [
+   {
+    "principalId": "f19bbc94-671c-4761-88ad-2265348d33c5",
+    "roleDefinitionId": "91c1777a-f3dc-4fae-b103-61d183457e46",
+    "principalIdDisplayName": "Syclone Azure Authorization"
+   },
+   {
+    "principalId": "f19bbc94-671c-4761-88ad-2265348d33c5",
+    "roleDefinitionId": "18d7d88d-d35e-4fb5-a5c3-7773c20a72d9",
+    "principalIdDisplayName": "Syclone Azure Authorization"
+   },
+   {
+    "principalId": "f19bbc94-671c-4761-88ad-2265348d33c5",
+    "roleDefinitionId": "acdd72a7-3385-48ef-bd42-f606fba81ae7",
+    "principalIdDisplayName": "Syclone Azure Authorization"
+   }
+  ],
+  "eligibleAuthorizations": [
+   {
+    "justInTimeAccessPolicy": {
+     "multiFactorAuthProvider": "Azure",
+     "maximumActivationDuration": "PT4H",
+     "managedByTenantApprovers": []
+    },
+    "principalId": "f19bbc94-671c-4761-88ad-2265348d33c5",
+    "principalIdDisplayName": "Syclone Azure Authorization",
+    "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+   },
+   {
+    "justInTimeAccessPolicy": {
+     "multiFactorAuthProvider": "Azure",
+     "maximumActivationDuration": "PT4H",
+     "managedByTenantApprovers": []
+    },
+    "principalId": "f19bbc94-671c-4761-88ad-2265348d33c5",
+    "principalIdDisplayName": "Syclone Azure Authorization",
+    "roleDefinitionId": "92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+   }
+  ]
+ },
+ "resources": [
+  {
+   "type": "Microsoft.ManagedServices/registrationDefinitions",
+   "apiVersion": "2020-02-01-preview",
+   "name": "[variables('mspRegistrationName')]",
+   "properties": {
+    "registrationDefinitionName": "[parameters('mspOfferName')]",
+    "description": "[parameters('mspOfferDescription')]",
+    "managedByTenantId": "[variables('managedByTenantId')]",
+    "authorizations": "[variables('authorizations')]",
+    "eligibleAuthorizations": "[variables('eligibleAuthorizations')]"
+   }
+  },
+  {
+   "type": "Microsoft.ManagedServices/registrationAssignments",
+   "apiVersion": "2020-02-01-preview",
+   "name": "[variables('mspAssignmentName')]",
+   "dependsOn": [
+    "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+   ],
+   "properties": {
+    "registrationDefinitionId": "[resourceId('Microsoft.ManagedServices/registrationDefinitions/', variables('mspRegistrationName'))]"
+   }
+  }
+ ],
+ "outputs": {
+  "mspOfferName": {
+   "type": "string",
+   "value": "[concat('Managed by', ' ', parameters('mspOfferName'))]"
+  },
+  "authorizations": {
+   "type": "array",
+   "value": "[variables('authorizations')]"
+  },
+  "eligibleAuthorizations": {
+   "type": "array",
+   "value": "[variables('eligibleAuthorizations')]"
+  }
+ }
+}
